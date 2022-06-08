@@ -1,8 +1,6 @@
-variables:
-- group: kv-core-210713               # The name of the ado keyvault variable group.
-
 steps:
 
+# Update k8s manifests with correct connection details.
 - bash: |
     sed -i.bak 's#apple#${{ parameters.tag }}#' ./*.yaml
     sed -i.bak 's#grape#${{ parameters.mySqlFqdn }}#' ./*.yaml
@@ -13,10 +11,11 @@ steps:
   displayName: 'K8s - Update Manifests (PRD)'
   workingDirectory: 'k8s/'
 
-# - bash: |
-#     az login --service-principal -u $(KV-ARM-CLIENT-ID) -p $(KV-ARM-CLIENT-SECRET) --tenant $(KV-ARM-TENANT-ID)
-#     az aks get-credentials --resource-group $(rgNamePrd) --name $(aksNamePrd) --admin
-#     kubectl apply -f ./analytics.yaml
-#     kubectl apply -f ./voting.yaml
-#   displayName: 'K8s - Deploy (PRD)'
-#   workingDirectory: 'k8s/'
+# Deploy k8s manifests for analytics and voting apps.
+- bash: |
+    az login --service-principal -u $(KV-ARM-CLIENT-ID) -p $(KV-ARM-CLIENT-SECRET) --tenant $(KV-ARM-TENANT-ID)
+    az aks get-credentials --resource-group $(rgNamePrd) --name $(aksNamePrd) --admin
+    kubectl apply -f ./analytics.yaml
+    kubectl apply -f ./voting.yaml
+  displayName: 'K8s - Deploy (PRD)'
+  workingDirectory: 'k8s/'

@@ -10,17 +10,18 @@ pr:
 - none
 
 variables:
+- group: kv-core-210713               # The name of the ado keyvault variable group.
+
 - name:  mySqlFqdnPrd
   value: 'mysql-prd-nteu-voteapp-220606-1000.mysql.database.azure.com'
 - name:  mySqlNamePrd
   value: 'mysql-prd-nteu-voteapp-220606-1000'
 - name:  urlPrd
   value: 'prd.rhod3rz.com'
-
 - name:  rgNamePrd
-  value: 'rg-prd-$(objSuffix)'
+  value: 'rg-prd-voteapp-220606-1000'
 - name:  aksNamePrd
-  value: 'aks-prd-nteu-$(objSuffix)'
+  value: 'aks-prd-nteu-voteapp-220606-1000'
 
 jobs:
 
