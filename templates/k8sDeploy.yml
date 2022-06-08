@@ -1,3 +1,6 @@
+variables:
+- group: kv-core-210713               # The name of the ado keyvault variable group.
+
 steps:
 
 - bash: |
