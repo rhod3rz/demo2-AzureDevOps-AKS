@@ -3,8 +3,8 @@ steps:
 - bash: |
     sed -i.bak 's#apple#${{ parameters.tag }}#' ./*.yaml
     sed -i.bak 's#grape#${{ parameters.mySqlFqdn }}#' ./*.yaml
-    sed -i.bak 's#lemon#{{ parameters.mySqlName }}#' ./*.yaml
-    sed -i.bak 's#melon#{{ parameters.url }}#' ./*.yaml
+    sed -i.bak 's#lemon#${{ parameters.mySqlName }}#' ./*.yaml
+    sed -i.bak 's#melon#${{ parameters.url }}#' ./*.yaml
     cat analytics.yaml
     cat voting.yaml
   displayName: 'K8s - Update Manifests (PRD)'
