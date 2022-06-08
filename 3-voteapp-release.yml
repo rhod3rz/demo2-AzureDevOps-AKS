@@ -11,17 +11,18 @@ pr:
 
 variables:
 - group: kv-core-210713               # The name of the ado keyvault variable group.
-- name:  objSuffix
-  value: voteapp-220606-1000
+
+- name:  mySqlFqdnPrd
+  value: 'mysql-prd-nteu-voteapp-220606-1000.mysql.database.azure.com'
+- name:  mySqlNamePrd
+  value: 'mysql-prd-nteu-voteapp-220606-1000'
+- name:  urlPrd
+  value: 'prd.rhor3rz.com'
 
 - name:  rgNamePrd
   value: 'rg-prd-$(objSuffix)'
 - name:  aksNamePrd
   value: 'aks-prd-nteu-$(objSuffix)'
-- name:  mySqlFqdnPrd
-  value: 'mysql-prd-nteu-$(objSuffix).mysql.database.azure.com'
-- name:  mySqlName
-  value: 'mysql-prd-nteu-$(objSuffix)'
 
 jobs:
 
@@ -32,19 +33,9 @@ jobs:
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
-
-  - bash: |
-      sed -i.bak 's#apple#${{ parameters.dockerTag }}#' ./*.yaml
-      sed -i.bak 's#grape#$(mySqlFqdnPrd)#' ./*.yaml
-      sed -i.bak 's#lemon#$(mySqlName)#' ./*.yaml
-      sed -i.bak 's#melon#prd.rhod3rz.com#' ./*.yaml
-    displayName: 'K8s - Update Manifests (PRD)'
-    workingDirectory: 'k8s/'
-
-  - bash: |
-      az login --service-principal -u $(KV-ARM-CLIENT-ID) -p $(KV-ARM-CLIENT-SECRET) --tenant $(KV-ARM-TENANT-ID)
-      az aks get-credentials --resource-group $(rgNamePrd) --name $(aksNamePrd) --admin
-      kubectl apply -f ./analytics.yaml
-      kubectl apply -f ./voting.yaml
-    displayName: 'K8s - Deploy (PRD)'
-    workingDirectory: 'k8s/'
+  - template: templates/k8sDeploy.yml
+    parameters:
+      tag: ${{ parameters.dockerTag }}
+      mySqlFqdn: $(mySqlFqdnPrd)
+      mySqlName: $(mySqlNamePrd)
+      url: $(urlPrd)
