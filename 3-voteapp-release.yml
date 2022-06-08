@@ -63,6 +63,8 @@ jobs:
       mySqlFqdn: $(mySqlFqdnPrd)
       mySqlName: $(mySqlNamePrd)
       url: $(urlPrd)
+      rgName: $(rgNamePrd)
+      aksName: $(aksNamePrd)
 
 # Deploy voting app manifests to dev.
 - job: 'k8sDeployDev'
@@ -77,6 +79,8 @@ jobs:
       mySqlFqdn: $(mySqlFqdnDev)
       mySqlName: $(mySqlNameDev)
       url: $(urlDev)
+      rgName: $(rgNameDev)
+      aksName: $(aksNameDev)
 
 # Deploy voting app manifests to stg.
 - job: 'k8sDeployStg'
@@ -91,3 +95,5 @@ jobs:
       mySqlFqdn: $(mySqlFqdnStg)
       mySqlName: $(mySqlNameStg)
       url: $(urlStg)
+      rgName: $(rgNameStg)
+      aksName: $(aksNameStg)

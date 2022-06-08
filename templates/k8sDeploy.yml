@@ -8,14 +8,14 @@ steps:
     sed -i.bak 's#melon#${{ parameters.url }}#' ./*.yaml
     cat analytics.yaml
     cat voting.yaml
-  displayName: 'K8s - Update Manifests (PRD)'
+  displayName: 'K8s - Update Manifests'
   workingDirectory: 'k8s/'
 
 # Deploy k8s manifests for analytics and voting apps.
 - bash: |
     az login --service-principal -u $(KV-ARM-CLIENT-ID) -p $(KV-ARM-CLIENT-SECRET) --tenant $(KV-ARM-TENANT-ID)
-    az aks get-credentials --resource-group $(rgNamePrd) --name $(aksNamePrd) --admin
+    az aks get-credentials --resource-group $(rgName) --name $(aksName) --admin
     kubectl apply -f ./analytics.yaml
     kubectl apply -f ./voting.yaml
-  displayName: 'K8s - Deploy (PRD)'
+  displayName: 'K8s - Deploy'
   workingDirectory: 'k8s/'
