@@ -14,7 +14,7 @@ steps:
 # Deploy k8s manifests for analytics and voting apps.
 - bash: |
     az login --service-principal -u $(KV-ARM-CLIENT-ID) -p $(KV-ARM-CLIENT-SECRET) --tenant $(KV-ARM-TENANT-ID)
-    az aks get-credentials --resource-group $(rgName) --name $(aksName) --admin
+    az aks get-credentials --resource-group ${{ parameters.rgName }} --name ${{ parameters.aksName }} --admin
     kubectl apply -f ./analytics.yaml
     kubectl apply -f ./voting.yaml
   displayName: 'K8s - Deploy'
