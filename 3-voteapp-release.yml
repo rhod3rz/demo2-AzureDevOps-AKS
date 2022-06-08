@@ -20,6 +20,9 @@ variables:
 - name:  azureSub                   # The azure sub service connection name.
   value: 'payg2106'
 
+steps:
+- bash: echo $(dockerTag)
+
 # jobs:
 
 # Deploy voting app manifests to prd.
