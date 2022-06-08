@@ -21,7 +21,7 @@ variables:
   value: 'payg2106'
 
 steps:
-- bash: echo $(dockerTag)
+- bash: echo ${{ parameters.dockerTag }}
 
 # jobs:
 
