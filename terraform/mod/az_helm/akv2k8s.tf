@@ -37,12 +37,12 @@ resource "kubectl_manifest" "akv2aks" {
   depends_on = [kubectl_manifest.voting]
   yaml_body = <<YAML
 ---
-# Sync a secret from azure key vault into a kubernetes secret.
+# Sync a certificate from azure key vault into a kubernetes secret.
 apiVersion: spv.no/v2beta1
 kind: AzureKeyVaultSecret
 metadata:
   name: certificate-sync
-  namespace: voting           # The namespace to create the certs in. Certs must be in the same namespace as the resource!
+  namespace: voting           # The namespace to create the secret in. Secrets must be in the same namespace as the resource!
 spec:
   vault:
     name: kv-core-210713      # Name of key vault.

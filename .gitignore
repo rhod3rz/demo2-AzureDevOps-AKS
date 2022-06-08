@@ -14,3 +14,4 @@ tfplan*
 _build*.sh
 *.bak
 *.bacpac
+**/ztest/*
