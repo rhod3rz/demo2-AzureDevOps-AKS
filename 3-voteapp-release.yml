@@ -10,19 +10,20 @@ pr:
 - none
 
 variables:
-- group: 'kv-core-210713'            # The name of the ado keyvault variable group.
-- name:  'acrRepoAnalytics'          # The container registry repo name.
-  value: 'voteapp-analytics'
-- name:  'acrRepoVoting'             # The container registry repo name.
-  value: 'voteapp-voting'
-- name:  'acrName'                   # The acr name.
-  value: 'acrdlnteudemoapps210713'
-- name:  'azureSub'                  # The azure sub service connection name.
-  value: 'payg2106'
+- group: kv-core-210713            # The name of the ado keyvault variable group.
+- name:  acrRepoAnalytics          # The container registry repo name.
+  value: voteapp-analytics
+- name:  acrRepoVoting             # The container registry repo name.
+  value: voteapp-voting
+- name:  acrName                   # The acr name.
+  value: acrdlnteudemoapps210713
+- name:  azureSub                  # The azure sub service connection name.
+  value: payg2106
 
 steps:
 - bash: |
     echo ${{ parameters.dockerTag }}
+    echo $(kv-core-210713)
     echo $(acrRepoAnalytics)
 
 # jobs:
