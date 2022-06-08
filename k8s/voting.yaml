@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: voting-app
-        image: "acrdlnteudemoapps210713.azurecr.io/voting:apple"
+        image: "acrdlnteudemoapps210713.azurecr.io/voteapp-voting:apple"
         imagePullPolicy: Always
         resources:
           requests:            # Minimum amount of resources requested.
