@@ -10,15 +10,13 @@ pr:
 - none
 
 variables:
-- group: kv-core-210713             # The name of the ado keyvault variable group.
-- name:  acrRepoAnalytics           # The container registry repo name.
-  value: 'voteapp-analytics'
-- name:  acrRepoVoting              # The container registry repo name.
-  value: 'voteapp-voting'
-- name:  acrName                    # The acr name.
-  value: 'acrdlnteudemoapps210713'
-- name:  azureSub                   # The azure sub service connection name.
-  value: 'payg2106'
+- group: kv-core-210713               # The name of the ado keyvault variable group.
+- name:  objSuffix
+  value: voteapp-220606-1000
+- name:  rgNamePrd
+  value: 'rg-prd-$(objSuffix)'
+- name:  aksNamePrd
+  value: 'aks-prd-nteu-$(objSuffix)'
 
 jobs:
 
@@ -31,5 +29,6 @@ jobs:
   steps:
   - bash: |
       az login --service-principal -u $(KV-ARM-CLIENT-ID) -p $(KV-ARM-CLIENT-SECRET) --tenant $(KV-ARM-TENANT-ID)
+      az aks get-credentials --resource-group $(rgNamePrd) --name $(aksNamePrd) --admin
     displayName: 'K8s - Deploy (PRD)'
     workingDirectory: 'k8s/'
