@@ -1,0 +1,104 @@
+trigger:
+- none
+
+pr:
+- none
+
+variables:
+- group: 'kv-core-210713' # The name of the ado keyvault variable group.
+
+stages:
+
+  # Terraform 'plan' the web app infrastructure.
+  - stage: 'terraformPlan'
+    displayName: 'Terraform - Plan'
+    jobs:
+
+    # Initiate and plan terraform on prd; output artifact for review.
+    - job: 'terraformInitPrd'
+      displayName: 'Init & Plan (prd)'
+      condition: eq(variables['Build.SourceBranchName'], 'prd')
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - template: templates/terraformPlan.yml
+        parameters:
+          env: 'prd'
+
+    # Initiate and plan terraform on dev; output artifact for review.
+    - job: 'terraformInitDev'
+      displayName: 'Init & Plan (dev)'
+      # Only deploy if the branch name is not 'stg' or 'prd'.
+      condition: and(ne(variables['Build.SourceBranchName'], 'stg'), ne(variables['Build.SourceBranchName'], 'prd'))
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - template: templates/terraformPlan.yml
+        parameters:
+          env: 'dev'
+
+    # Initiate and plan terraform on dev; output artifact for review.
+    - job: 'terraformInitStg'
+      displayName: 'Init & Plan (stg)'
+      condition: eq(variables['Build.SourceBranchName'], 'stg')
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - template: templates/terraformPlan.yml
+        parameters:
+          env: 'stg'
+
+  # Manual step to approve the terraform plan.
+  - stage: 'waitForValidationTerraform'
+    displayName: 'Wait for Validation'
+    dependsOn:
+    - terraformPlan
+    jobs:
+
+    # Manual step to approve the terraform plan.
+    - job: 'waitForValidationTerraform'
+      displayName: 'Wait for Validation'
+      pool: server
+      timeoutInMinutes: 4320 # Job times out in 3 days.
+      steps:
+      - template: templates/terraformWait.yml
+
+# Terraform 'apply' the azure infrasturcture.
+  - stage: 'terraformApply'
+    displayName: 'Terraform - Apply'
+    dependsOn:
+    - waitForValidationTerraform
+    jobs:
+
+    # Apply terraform on prd.
+    - job: 'terraformApplyPrd'
+      displayName: 'Apply (prd)'
+      condition: and(succeeded(),eq(variables['Build.SourceBranchName'], 'prd'))
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - template: templates/terraformApply.yml
+        parameters:
+          env: 'prd'
+
+    # Apply terraform on dev.
+    - job: 'terraformApplyDev'
+      displayName: 'Apply (dev)'
+      condition: and(succeeded(),ne(variables['Build.SourceBranchName'], 'stg'),ne(variables['Build.SourceBranchName'], 'prd'))
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - template: templates/terraformApply.yml
+        parameters:
+          env: 'dev'
+
+    # Apply terraform on stg.
+    - job: 'terraformApplyStg'
+      displayName: 'Apply (stg)'
+      condition: and(succeeded(),eq(variables['Build.SourceBranchName'], 'stg'))
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - template: templates/terraformApply.yml
+        parameters:
+          env: 'stg'

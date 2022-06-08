@@ -1,0 +1,1 @@
+variable "afw_primary" {}
