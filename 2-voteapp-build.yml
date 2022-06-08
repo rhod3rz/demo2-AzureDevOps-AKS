@@ -1,0 +1,42 @@
+trigger:
+  branches:
+    include:
+      - '*'
+
+pr:
+- none
+
+variables:
+  buildConfiguration: 'Release'                  # Update here.
+  acrRepoAnalytics:   'voteapp-analytics'        # The container registry repo name.
+  acrRepoVoting:      'voteapp-voting'           # The container registry repo name.
+  acrName:            'acrdlnteudemoapps210713'  # Update here.
+  azureSub:           'payg2106'                 # Update here.
+
+jobs:
+
+# Build & Push Docker Image to ACR.
+- job: 'buildAndPushDocker-Analytics'
+  displayName: 'Analytics - Build & Push Docker Image to ACR'
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: templates/dockerBuild.yml
+    parameters:
+      acrRepo: $(acrRepoAnalytics)
+      acrName: $(acrName)
+      tag: '$(Build.BuildNumber)-$(Build.SourceBranchName)'
+      dockerPath: "src/analytics"
+
+# Build & Push Docker Image to ACR.
+- job: 'buildAndPushDocker-Voting'
+  displayName: 'Voting - Build & Push Docker Image to ACR'
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: templates/dockerBuild.yml
+    parameters:
+      acrRepo: $(acrRepoVoting)
+      acrName: $(acrName)
+      tag: '$(Build.BuildNumber)-$(Build.SourceBranchName)'
+      dockerPath: "src/voting"

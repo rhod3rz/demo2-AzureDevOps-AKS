@@ -7,18 +7,18 @@ steps:
     command: buildAndPush
     buildContext: $(Build.Repository.LocalPath)
     repository: ${{ parameters.acrRepo }}
-    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+    dockerfile: '$(Build.SourcesDirectory)/${{ parameters.dockerPath }}/Dockerfile'
     containerRegistry: ${{ parameters.acrName }}
     tags: ${{ parameters.tag }}
 
 # Build and push a 'latest' image to ACR if branch is 'prd' only.
 - task: Docker@2
   condition: eq(variables['Build.SourceBranchName'], 'prd')
-  displayName: 'Build and push latest'
+  displayName: '** Build and push latest'
   inputs:
     command: buildAndPush
     buildContext: $(Build.Repository.LocalPath)
     repository: ${{ parameters.acrRepo }}
-    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+    dockerfile: '$(Build.SourcesDirectory)/${{ parameters.dockerPath }}/Dockerfile'
     containerRegistry: ${{ parameters.acrName }}
     tags: latest
