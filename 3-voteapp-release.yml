@@ -1,0 +1,42 @@
+parameters:
+- name: dockerTag
+  displayName: Docker Tag (Required)
+  type: string
+
+trigger:
+- none
+
+pr:
+- none
+
+variables:
+- group: 'kv-core-210713'           # The name of the ado keyvault variable group.
+- name:  acrRepoAnalytics           # The container registry repo name.
+  value: 'voteapp-analytics'
+- name:  acrRepoVoting              # The container registry repo name.
+  value: 'voteapp-voting'
+- name:  acrName                    # The acr name.
+  value: 'acrdlnteudemoapps210713'
+- name:  azureSub                   # The azure sub service connection name.
+  value: 'payg2106'
+
+# jobs:
+
+# Deploy voting app manifests to prd.
+# - job: 'k8sDeployPrd'
+#   displayName: 'K8s - Deploy (PRD)'
+#   condition: eq(variables['Build.SourceBranchName'], 'prd')
+#   pool:
+#     vmImage: 'ubuntu-18.04'
+#   steps:
+#   - bash: |
+#       az login --service-principal -u $(KV-ARM-CLIENT-ID) -p $(KV-ARM-CLIENT-SECRET) --tenant $(KV-ARM-TENANT-ID)
+#       az aks get-credentials --resource-group $(varsAKSRg) --name $(varsAKSName) --admin
+#       sed -i.bak 's#apple#$(tag)-$(targetEnv)#' ./*.yaml
+#       sed -i.bak 's#grape#$(varsMySQLFQDN)#' ./*.yaml
+#       sed -i.bak 's#lemon#$(varsMySQLName)#' ./*.yaml
+#       sed -i.bak 's#melon#prd.rhod3rz.com#' ./*.yaml
+#       kubectl apply -f ./analytics.yaml
+#       kubectl apply -f ./voting.yaml
+#     displayName: 'K8s - Deploy (PRD)'
+#     workingDirectory: 'k8s/'
