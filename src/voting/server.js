@@ -17,7 +17,7 @@ app.use(morgan('combined'));
 
 // Configuration and potential overrides
 var port = process.env.PORT || 8080;
-var title = process.env.TITLE || "AKS Voting App - 220608-2025";
+var title = process.env.TITLE || "AKS Voting App - 220608-2043";
 var vote1 = process.env.VOTE1VALUE || "Cats";
 var vote2 = process.env.VOTE2VALUE || "Dogs";
 var showDetails = process.env.SHOWDETAILS || false;
