@@ -16,7 +16,7 @@ variables:
 jobs:
 
 # Build & Push Docker Image to ACR.
-- job: 'buildAndPushDocker-Analytics'
+- job: 'buildAndPushDockerAnalytics'
   displayName: 'Analytics - Build & Push Docker Image to ACR'
   pool:
     vmImage: 'ubuntu-18.04'
@@ -29,7 +29,7 @@ jobs:
       dockerPath: "src/analytics"
 
 # Build & Push Docker Image to ACR.
-- job: 'buildAndPushDocker-Voting'
+- job: 'buildAndPushDockerVoting'
   displayName: 'Voting - Build & Push Docker Image to ACR'
   pool:
     vmImage: 'ubuntu-18.04'
