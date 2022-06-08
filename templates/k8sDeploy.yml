@@ -17,16 +17,3 @@ steps:
 #     kubectl apply -f ./voting.yaml
 #   displayName: 'K8s - Deploy (PRD)'
 #   workingDirectory: 'k8s/'
-
-
-# If branch is 'prd', swap 'prd' out to 'stg' for easy rollback.
-- task: AzureAppServiceManage@0
-  condition: eq(variables['Build.SourceBranchName'], 'prd')
-  displayName: 'Backup prd to stg slot'
-  inputs:
-    azureSubscription: ${{ parameters.azureSub }}
-    Action:            'Swap Slots'
-    WebAppName:        ${{ parameters.webAppName }}
-    ResourceGroupName: ${{ parameters.rgName }}
-    SourceSlot:        'stg'
-
