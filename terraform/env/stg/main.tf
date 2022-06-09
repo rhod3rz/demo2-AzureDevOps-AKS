@@ -31,7 +31,7 @@ module "az_dns" {
   source                          = "../../mod/az_dns"                                      /* The path to the module */
   depends_on                      = [module.az_agw]                                         /* Wait for dependencies */
   record_name                     = var.environment                                         /* The a record name */
-  pip_agw_primary                 = "${module.az_config.item_name.pip_agw_primary}"         /* The pip name */
+  pip_ip_address_agw              = "${module.az_agw.pip_ip_address_agw}"                   /* The agw pip ip address */
 }
 
 # Create mysql server.
