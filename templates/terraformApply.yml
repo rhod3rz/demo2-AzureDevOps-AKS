@@ -1,0 +1,33 @@
+steps:
+
+# Install specific version of terraform.
+- task: TerraformInstaller@0
+  displayName: Terraform Installer
+  inputs:
+    terraformVersion: '1.2.2'
+
+# Download tfplan artifact.
+- task: DownloadPipelineArtifact@2
+  displayName: Download tfplan
+  inputs:
+    artifact: 'tfplan'
+    path: '$(Build.SourcesDirectory)/terraform/env/${{ parameters.env }}'
+
+# Run terraform init.
+- bash: |
+    terraform init -backend-config="access_key=$KV_ARM_ACCESS_KEY"
+  displayName: Terraform Init
+  workingDirectory: 'terraform/env/${{ parameters.env }}'
+  env:
+    KV_ARM_ACCESS_KEY: $(KV-ARM-ACCESS-KEY)
+
+# Run terraform apply.
+- bash: |
+    terraform apply -input=false tfplan
+  displayName: Terraform Apply
+  workingDirectory: 'terraform/env/${{ parameters.env }}'
+  # CLIENT_ID & TENANT_ID required for local-exec (mod\az_firewall\main.tf).
+  env:
+    ARM_CLIENT_SECRET: $(KV-ARM-CLIENT-SECRET)
+    ARM_CLIENT_ID: $(KV-ARM-CLIENT-ID)
+    ARM_TENANT_ID: $(KV-ARM-TENANT-ID)

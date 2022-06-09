@@ -1,0 +1,38 @@
+steps:
+
+# Install specific version of terraform.
+- task: TerraformInstaller@0
+  displayName: Terraform Installer
+  inputs:
+    terraformVersion: '1.2.2'
+
+# Run terraform init.
+- bash: |
+    terraform init -backend-config="access_key=$KV_ARM_ACCESS_KEY"
+  displayName: Terraform Init
+  workingDirectory: 'terraform/env/${{ parameters.env }}'
+  env:
+    KV_ARM_ACCESS_KEY: $(KV-ARM-ACCESS-KEY)
+
+# Run terraform plan.
+- bash: |
+    terraform plan -out tfplan
+    terraform show -no-color tfplan > tfplan.txt
+  displayName: Terraform Plan
+  workingDirectory: 'terraform/env/${{ parameters.env }}'
+  env:
+    ARM_CLIENT_SECRET: $(KV-ARM-CLIENT-SECRET)
+
+# Publish tfplan.txt as an artifact to be reviewed before manual validation.
+- task: PublishPipelineArtifact@1
+  displayName: Terraform Plan Report
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/terraform/env/${{ parameters.env }}/tfplan.txt'
+    artifactName: 'tfplan.txt'
+
+# Publish tfplan to be used by 'terraform apply -input=false tfplan'.
+- task: PublishPipelineArtifact@1
+  displayName: Terraform Report Output
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/terraform/env/${{ parameters.env }}/tfplan'
+    artifactName: 'tfplan'

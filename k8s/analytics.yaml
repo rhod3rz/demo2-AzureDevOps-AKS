@@ -1,0 +1,123 @@
+---
+# DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voting-analytics
+  namespace: voting
+  labels:
+    app: voting-analytics
+  annotations:
+    kubernetes.io/change-cause: apple
+spec:
+  selector:                    # Specifies a label selector for the pods targeted by this deployment.
+    matchLabels:
+      app: voting-analytics
+  replicas: 1                  # Specifies the number of desired Pods
+  strategy:                    # This strategy says we want to add pods one at a time (maxSurge), and there must always be 3 pods ready (replicas).
+    type: RollingUpdate        # Type 'rolling' or 'recreate'.
+    rollingUpdate:             # The deployment updates pods in a rolling update fashion.
+      maxSurge: 1              # maxSurge is the maximum number of new pods that will be created at a time.
+      maxUnavailable: 0        # maxUnavailable is the maximum number of old pods that will be deleted at a time.
+  minReadySeconds: 10          # The min # of secs a new pod should be ready without any of its containers crashing, for it to be considered available.
+  revisionHistoryLimit: 3      # The number of old replicasets to retain to allow rollback.
+  template:                    # The pod template. It has exactly the same schema as a pod, except it is nested and does not have an apiVersion or kind.
+    metadata:
+      name: voting-analytics
+      labels:
+        app: voting-analytics
+    spec:
+      containers:
+      - name: voting-analytics
+        image: "acrdlnteudemoapps210713.azurecr.io/voteapp-analytics:apple"
+        imagePullPolicy: Always
+        resources:
+          requests:            # Minimum amount of resources requested.
+            cpu: 50m           # 1/20th of a vCPU; a vCPU is 1000m (millicores).
+            memory: 64Mi       # 64 Mebibytes
+          limits:              # Maximum amount of resources requested.
+            cpu: 100m          # 1/10th of a CPU.
+            memory: 128Mi      # 128 Mebibytes.
+        ports:
+        - containerPort: 8080  # This container exposes port 8080.
+          protocol: TCP
+        volumeMounts:          # Volume mount for csi-driver kv secrets.
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+        env:                   # Environment variables required by the container.
+        - name: MYSQL_HOST
+          value: "grape"
+        - name: MYSQL_USER
+          value: "mysqladmin@lemon"
+        - name: MYSQL_DATABASE
+          value: "azurevote"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: voting
+              key: MYSQL_PASSWORD
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "kv-core-210713"
+---
+# HORIZONTAL POD AUTOSCALER
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: voting-analytics-hpa
+  namespace: voting
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: voting-analytics
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 50
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: voting-analytics
+  namespace: voting
+spec:
+  selector:
+    app: voting-analytics
+  type: NodePort           # The type of service port e.g.ClusterIP (Default), NodePort or LoadBalancer.
+  ports:
+  - protocol: TCP
+    port: 8080                 # The port exposed by the service.
+    targetPort: 8080           # The port to forward to in the pod/deployment.
+---
+# INGRESS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: voting-analytics
+  namespace: voting
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway # Add annotation indicating the ingress to use.
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"       # Add annotation to redirect 80 requests to 443.
+spec:
+  tls:
+    - hosts:
+      - melon
+      secretName: rhod3rz-com  # The name of the kubernetes tls secret sync'd from key vault with akv2k8s.
+  rules:
+  - host: melon      # Ensure public dns has been updated with pip of agw.
+    http:
+      paths:
+      - pathType: Prefix
+        path: /analytics # < the path to the landing page e.g. https://prd.rhod3rz.com/analytics; if left as / then you'll get error 502 bad gateway./
+        backend:
+          service:
+            name: voting-analytics
+            port:
+              number: 8080
+---
