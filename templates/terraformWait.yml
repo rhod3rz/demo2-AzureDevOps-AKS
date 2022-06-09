@@ -1,0 +1,9 @@
+steps:
+
+# Manual step to approve the terraform plan.
+- task: ManualValidation@0
+  displayName: 'Manual Validation'
+  inputs:
+    notifyUsers: rhodri.freer@outlook.com # User must be listed under ado organisation settings > users for this to work.
+    instructions: 'Please validate the build configuration by reviewing artifact tfplan.txt and resume'
+    onTimeout: 'reject'

@@ -1,0 +1,99 @@
+parameters:
+- name: dockerTag
+  displayName: Docker Tag (Required)
+  type: string
+
+trigger:
+- none
+
+pr:
+- none
+
+variables:
+- group: kv-core-210713               # The name of the ado keyvault variable group.
+
+- name:  objSuffix
+  value: 'voteapp-220606-1000'
+
+- name:  mySqlFqdnPrd
+  value: 'mysql-prd-nteu-$(objSuffix).mysql.database.azure.com'
+- name:  mySqlNamePrd
+  value: 'mysql-prd-nteu-$(objSuffix)'
+- name:  urlPrd
+  value: 'prd.rhod3rz.com'
+- name:  rgNamePrd
+  value: 'rg-prd-$(objSuffix)'
+- name:  aksNamePrd
+  value: 'aks-prd-nteu-$(objSuffix)'
+
+- name:  mySqlFqdnDev
+  value: 'mysql-dev-nteu-$(objSuffix).mysql.database.azure.com'
+- name:  mySqlNameDev
+  value: 'mysql-dev-nteu-$(objSuffix)'
+- name:  urlDev
+  value: 'dev.rhod3rz.com'
+- name:  rgNameDev
+  value: 'rg-dev-$(objSuffix)'
+- name:  aksNameDev
+  value: 'aks-dev-nteu-$(objSuffix)'
+
+- name:  mySqlFqdnStg
+  value: 'mysql-stg-nteu-$(objSuffix).mysql.database.azure.com'
+- name:  mySqlNameStg
+  value: 'mysql-stg-nteu-$(objSuffix)'
+- name:  urlStg
+  value: 'stg.rhod3rz.com'
+- name:  rgNameStg
+  value: 'rg-stg-$(objSuffix)'
+- name:  aksNameStg
+  value: 'aks-stg-nteu-$(objSuffix)'
+
+jobs:
+
+# Deploy voting app manifests to prd.
+- job: 'k8sDeployPrd'
+  displayName: 'K8s - Deploy (PRD)'
+  condition: eq(variables['Build.SourceBranchName'], 'prd')
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: templates/k8sDeploy.yml
+    parameters:
+      tag: ${{ parameters.dockerTag }}
+      mySqlFqdn: $(mySqlFqdnPrd)
+      mySqlName: $(mySqlNamePrd)
+      url: $(urlPrd)
+      rgName: $(rgNamePrd)
+      aksName: $(aksNamePrd)
+
+# Deploy voting app manifests to dev.
+- job: 'k8sDeployDev'
+  displayName: 'K8s - Deploy (DEV)'
+  condition: eq(variables['Build.SourceBranchName'], 'dev')
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: templates/k8sDeploy.yml
+    parameters:
+      tag: ${{ parameters.dockerTag }}
+      mySqlFqdn: $(mySqlFqdnDev)
+      mySqlName: $(mySqlNameDev)
+      url: $(urlDev)
+      rgName: $(rgNameDev)
+      aksName: $(aksNameDev)
+
+# Deploy voting app manifests to stg.
+- job: 'k8sDeployStg'
+  displayName: 'K8s - Deploy (STG)'
+  condition: eq(variables['Build.SourceBranchName'], 'stg')
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: templates/k8sDeploy.yml
+    parameters:
+      tag: ${{ parameters.dockerTag }}
+      mySqlFqdn: $(mySqlFqdnStg)
+      mySqlName: $(mySqlNameStg)
+      url: $(urlStg)
+      rgName: $(rgNameStg)
+      aksName: $(aksNameStg)
